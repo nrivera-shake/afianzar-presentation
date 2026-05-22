@@ -1,0 +1,2039 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Afianzar — The Invisible Bottleneck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<script src="deck-stage.js"></script>
+
+<style>
+  :root {
+    /* Brand */
+    --navy: #1a2b4a;
+    --navy-deep: #0f1d36;
+    --navy-soft: #2a3d60;
+    --orange: #e5732d;
+    --orange-deep: #c25a1a;
+    --blue: #2e6fe8;
+    --bg: #fbfaf7;
+    --bg-warm: #f3efe7;
+    --ink: #1a2b4a;
+    --ink-soft: #4a5773;
+    --ink-mute: #8a92a3;
+    --line: #e6e1d6;
+    --line-soft: #efeae0;
+
+    /* Type scale (1920x1080) */
+    --type-mega: 200px;
+    --type-display: 120px;
+    --type-title: 76px;
+    --type-subtitle: 44px;
+    --type-lead: 38px;
+    --type-body: 30px;
+    --type-small: 24px;
+    --type-micro: 24px;
+    --type-eyebrow: 24px;
+
+    /* Spacing */
+    --pad-x: 110px;
+    --pad-top: 90px;
+    --pad-bottom: 90px;
+    --gap-title: 56px;
+    --gap-item: 28px;
+
+    /* Fonts */
+    --sans: "Geist", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --serif: "Instrument Serif", Georgia, serif;
+  }
+
+  html, body { margin: 0; padding: 0; background: #000; color: var(--ink); font-family: var(--sans); }
+
+  deck-stage section {
+    background: var(--bg);
+    color: var(--ink);
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Slide frame */
+  .slide {
+    position: absolute;
+    inset: 0;
+    padding: var(--pad-top) var(--pad-x) var(--pad-bottom);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+
+  .slide.dark { background: var(--navy-deep); color: #f4eee2; }
+  .slide.warm { background: var(--bg-warm); }
+  .slide.ink { background: var(--navy); color: #f4eee2; }
+
+  /* Eyebrow / step */
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: var(--type-eyebrow);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--orange);
+    font-weight: 500;
+  }
+  .dark .eyebrow, .ink .eyebrow { color: var(--orange); }
+
+  /* Headings */
+  h1, h2, h3, h4, p { margin: 0; }
+  .title {
+    font-size: var(--type-title);
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+  }
+  .dark .title, .ink .title { color: #f4eee2; }
+  .subtitle {
+    font-size: var(--type-subtitle);
+    font-weight: 400;
+    line-height: 1.18;
+    letter-spacing: -0.01em;
+    color: var(--ink-soft);
+  }
+  .dark .subtitle, .ink .subtitle { color: #c9c2b1; }
+  .lead { font-size: var(--type-lead); line-height: 1.3; font-weight: 400; }
+  .body { font-size: var(--type-body); line-height: 1.4; font-weight: 400; color: var(--ink-soft); }
+  .small { font-size: var(--type-small); line-height: 1.4; color: var(--ink-soft); }
+  .micro { font-size: var(--type-micro); line-height: 1.4; color: var(--ink-mute); }
+  .mono { font-family: var(--mono); }
+  .serif-it { font-family: var(--serif); font-style: italic; font-weight: 400; }
+
+  /* Slide header bar (page number, brand) */
+  .chrome {
+    position: absolute;
+    left: var(--pad-x);
+    right: var(--pad-x);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 24px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  .chrome.top { top: 48px; }
+  .chrome.bottom { bottom: 48px; }
+  .dark .chrome, .ink .chrome { color: #8a8166; }
+  .chrome .brand { font-weight: 600; color: var(--navy); }
+  .dark .chrome .brand, .ink .chrome .brand { color: #f4eee2; }
+  .chrome .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); display: inline-block; vertical-align: middle; margin: 0 10px 4px; }
+
+  /* Section divider */
+  .divider {
+    height: 1px;
+    background: var(--line);
+    margin: 0;
+  }
+  .dark .divider, .ink .divider { background: rgba(244,238,226,0.18); }
+
+  /* Decorative blob */
+  .blob {
+    position: absolute;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* === Slide 1: Cover === */
+  .cover {
+    background: var(--bg);
+    padding: 110px;
+  }
+  .cover .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    font-family: var(--mono);
+    font-size: 24px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  .cover .topbar .brand { color: var(--navy); font-weight: 600; }
+  .cover .main {
+    margin-top: auto;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 80px;
+  }
+  .cover h1 {
+    font-size: 180px;
+    font-weight: 600;
+    line-height: 0.93;
+    letter-spacing: -0.045em;
+    color: var(--navy);
+    max-width: 1300px;
+  }
+  .cover h1 em {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    color: var(--orange);
+  }
+  .cover .sub {
+    margin-top: 36px;
+    font-size: 36px;
+    color: var(--ink-soft);
+    max-width: 900px;
+    line-height: 1.25;
+  }
+  .cover .meta {
+    flex-shrink: 0;
+    text-align: right;
+    font-family: var(--mono);
+    font-size: 24px;
+    letter-spacing: 0.06em;
+    color: var(--ink-mute);
+    line-height: 1.55;
+    padding-bottom: 16px;
+  }
+  .cover .meta .label { text-transform: uppercase; color: var(--orange); letter-spacing: 0.18em; margin-bottom: 14px; font-size: 24px; }
+  .cover .meta .team { color: var(--ink); }
+  .cover .blob-cover {
+    position: absolute;
+    top: -300px;
+    right: -500px;
+    width: 1000px;
+    opacity: 0.7;
+    transform: rotate(-12deg);
+    z-index: 0;
+  }
+  .cover .topbar { position: relative; z-index: 2; }
+  .cover .main { position: relative; z-index: 2; }
+
+  /* === Section header slide === */
+  .section-head {
+    background: var(--navy-deep);
+    color: #f4eee2;
+    padding: 110px;
+    justify-content: center;
+  }
+  .section-head .num {
+    font-family: var(--mono);
+    font-size: 26px;
+    letter-spacing: 0.25em;
+    color: var(--orange);
+    margin-bottom: 32px;
+  }
+  .section-head h2 {
+    font-size: 168px;
+    line-height: 0.95;
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    color: #f4eee2;
+    max-width: 1500px;
+  }
+  .section-head h2 em {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    color: var(--orange);
+  }
+  .section-head .desc {
+    margin-top: 48px;
+    font-size: 34px;
+    color: #c9c2b1;
+    max-width: 1100px;
+    line-height: 1.35;
+  }
+  .section-head .blob-bg {
+    position: absolute;
+    bottom: -300px;
+    right: -200px;
+    width: 1200px;
+    opacity: 0.7;
+    mix-blend-mode: screen;
+  }
+
+  /* === Slide: Context (Afianzar at a glance) === */
+  .context-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 90px;
+    margin-top: 56px;
+    align-items: start;
+  }
+  .context-grid .left p { font-size: 36px; line-height: 1.35; color: var(--ink); }
+  .context-grid .left .accent { color: var(--orange); font-weight: 500; }
+  .context-grid .right { padding-top: 24px; }
+
+  /* Actor diagram */
+  .actors {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 14px 26px;
+    margin-top: 24px;
+  }
+  .actor {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 22px 24px;
+    font-size: 26px;
+    color: var(--ink);
+    text-align: center;
+    font-weight: 500;
+  }
+  .actor.center {
+    grid-column: 2;
+    background: var(--navy);
+    color: #f4eee2;
+    border-color: var(--navy);
+    padding: 30px 24px;
+    box-shadow: 0 12px 40px rgba(26,43,74,0.18);
+  }
+  .actor.center .role { display: block; font-family: var(--mono); font-size: 24px; letter-spacing: 0.2em; color: var(--orange); margin-bottom: 8px; text-transform: uppercase; }
+  .actor.center .name { font-size: 34px; font-weight: 600; }
+  .actor .label { display: block; font-family: var(--mono); font-size: 24px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 6px; }
+  .arrows {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    height: 60px;
+    align-items: center;
+    color: var(--ink-mute);
+    font-family: var(--mono);
+    font-size: 14px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .arrows .a { display: flex; align-items: center; justify-content: center; gap: 12px; }
+  .arrows .a svg { width: 100%; height: 28px; }
+
+  /* Stat block */
+  .statline {
+    display: flex;
+    gap: 64px;
+    margin-top: 40px;
+    padding: 30px 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .statline .s .v { font-size: 60px; font-weight: 600; color: var(--navy); letter-spacing: -0.02em; }
+  .statline .s .l { font-size: 24px; font-family: var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mute); margin-top: 6px; }
+
+  /* === KPI slide === */
+  .kpi-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    margin-top: 56px;
+  }
+  .kpi {
+    padding: 20px 24px 20px 24px;
+    border-left: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+  }
+  .kpi:first-child { border-left: 0; padding-left: 0; }
+  .kpi .num { font-family: var(--mono); font-size: 24px; letter-spacing: 0.16em; color: var(--orange); }
+  .kpi .name { font-size: 28px; font-weight: 500; color: var(--ink); margin-top: 10px; line-height: 1.15; min-height: 64px; }
+  .kpi .desc { font-size: 20px; color: var(--ink-mute); margin-top: 6px; line-height: 1.3; min-height: 48px; }
+  .kpi .arrow-row {
+    margin-top: 14px;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+  .kpi .from { font-size: 32px; color: var(--ink-mute); font-weight: 500; }
+  .kpi .arr { color: var(--orange); font-size: 26px; }
+  .kpi .to { font-size: 54px; font-weight: 600; color: var(--navy); letter-spacing: -0.02em; line-height: 1; }
+  .kpi .to .unit { font-size: 24px; font-weight: 500; color: var(--ink-soft); margin-left: 4px; }
+  .kpi .lbl-row { margin-top: 8px; display: flex; gap: 14px; font-family: var(--mono); font-size: 20px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-mute); }
+  .kpi .lbl-row span:nth-child(2) { color: var(--orange); }
+  .kpi-section-head {
+    grid-column: span 2;
+    padding: 0;
+    border: 0;
+  }
+  .kpi-section-head .h {
+    font-size: 30px;
+    font-weight: 500;
+    color: var(--navy);
+    letter-spacing: -0.01em;
+  }
+  .kpi-section-head .d {
+    margin-top: 8px;
+    font-size: 18px;
+    color: var(--ink-mute);
+    font-family: var(--mono);
+    letter-spacing: 0.06em;
+  }
+  .kpi-group-label {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin: 14px 0 14px;
+    font-family: var(--mono);
+    font-size: 16px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--orange);
+  }
+  .kpi-group-label::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  /* === María persona === */
+  .persona {
+    display: grid;
+    grid-template-columns: 480px 1fr;
+    gap: 80px;
+    flex: 1;
+    margin-top: 40px;
+  }
+  .persona-portrait {
+    background: var(--bg-warm);
+    border-radius: 24px;
+    padding: 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+  .persona-portrait .avatar {
+    width: 220px;
+    height: 220px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #f4e8d8, #e8d8b8);
+    overflow: hidden;
+    box-shadow: 0 18px 40px rgba(26,43,74,0.18);
+    align-self: center;
+  }
+  .persona-portrait .avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .persona-portrait .id { margin-top: 24px; }
+  .persona-portrait .id .name { font-size: 40px; font-weight: 600; color: var(--navy); letter-spacing: -0.02em; line-height: 1; }
+  .persona-portrait .id .role { font-size: 20px; color: var(--ink-soft); margin-top: 8px; font-family: var(--mono); letter-spacing: 0.04em; line-height: 1.3; }
+  .persona-portrait .stats { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; border-top: 1px solid rgba(26,43,74,0.12); padding-top: 16px; }
+  .persona-portrait .stats .s { font-size: 16px; }
+  .persona-portrait .stats .s .l { font-family: var(--mono); font-size: 18px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-mute); }
+  .persona-portrait .stats .s .v { font-size: 22px; color: var(--navy); margin-top: 4px; font-weight: 500; }
+
+  .persona-body { display: flex; flex-direction: column; gap: 44px; padding-top: 8px; }
+  .persona-quote {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 42px;
+    line-height: 1.15;
+    color: var(--navy);
+    letter-spacing: -0.01em;
+    border-left: 4px solid var(--orange);
+    padding-left: 28px;
+  }
+  .persona-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px 50px; }
+  .persona-cols h4 { font-family: var(--mono); font-size: 24px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--orange); margin-bottom: 12px; font-weight: 500; }
+  .persona-cols ul { list-style: none; padding: 0; margin: 0; }
+  .persona-cols li { font-size: 22px; color: var(--ink); line-height: 1.3; padding: 10px 0; border-bottom: 1px solid var(--line-soft); }
+  .persona-cols li:last-child { border-bottom: 0; }
+
+  /* === Day in life animation slot === */
+  .day-slot {
+    flex: 1;
+    margin-top: 56px;
+    background: var(--bg-warm);
+    border: 2px dashed rgba(26,43,74,0.18);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .day-slot .badge { font-family: var(--mono); font-size: 16px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--orange); }
+  .day-slot .label { font-size: 44px; font-weight: 500; color: var(--navy); letter-spacing: -0.01em; }
+  .day-slot .hint { font-family: var(--mono); font-size: 18px; color: var(--ink-mute); letter-spacing: 0.04em; max-width: 800px; text-align: center; line-height: 1.5; }
+
+  /* === Journey === */
+  .journey {
+    flex: 1;
+    margin-top: 32px;
+    display: grid;
+    grid-template-columns: 180px repeat(7, 1fr);
+    grid-template-rows: auto auto auto auto auto;
+    gap: 0;
+    font-size: 16px;
+  }
+  .journey .row-label {
+    grid-column: 1;
+    font-family: var(--mono);
+    font-size: 20px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    padding: 16px 16px 16px 0;
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: flex-start;
+  }
+  .journey .row-label.first { border-top: 0; }
+  .journey .cell {
+    border-left: 1px solid var(--line);
+    border-top: 1px solid var(--line);
+    padding: 14px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .journey .cell.first-row { border-top: 0; padding-top: 10px; }
+  .journey .stage {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-family: var(--mono);
+    letter-spacing: 0.06em;
+  }
+  .journey .stage .n {
+    font-size: 28px;
+    color: var(--orange);
+    font-weight: 600;
+    line-height: 1;
+  }
+  .journey .stage .name {
+    font-size: 22px;
+    color: var(--navy);
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: -0.005em;
+    line-height: 1.15;
+  }
+  .journey .touch {
+    font-size: 18px;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+  .journey .channel-pill {
+    display: inline-block;
+    background: var(--bg-warm);
+    color: var(--navy);
+    font-family: var(--mono);
+    font-size: 16px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-right: 4px;
+    margin-bottom: 4px;
+  }
+  .journey .emotion {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 22px;
+    color: var(--navy);
+    line-height: 1.25;
+  }
+  .journey .emotion-tag {
+    font-family: var(--mono);
+    font-size: 18px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .journey .pain {
+    font-size: 17px;
+    color: var(--ink-soft);
+    line-height: 1.3;
+  }
+  .journey .pain-dot { color: var(--orange); margin-right: 4px; }
+  .journey .mot {
+    background: linear-gradient(180deg, rgba(229,115,45,0.12), rgba(229,115,45,0.03));
+    border-top: 3px solid var(--orange) !important;
+  }
+  .journey .mot .stage .name { color: var(--orange-deep); }
+  .journey .mot-label {
+    font-family: var(--mono);
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--orange);
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  /* Emotion sentiment dots */
+  .emo-meter {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+  .emo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+  .emo-dot.on { background: var(--navy); }
+  .emo-dot.on.bad { background: var(--orange); }
+
+  /* === Moments of truth detail === */
+  .mot-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 40px;
+    margin-top: 48px;
+  }
+  .mot-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 36px 36px 32px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  .mot-card .stage-tag {
+    font-family: var(--mono);
+    font-size: 24px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 14px;
+  }
+  .mot-card .stage-tag .num { color: var(--navy); font-weight: 600; margin-right: 8px; }
+  .mot-card .h { font-size: 44px; font-weight: 600; color: var(--navy); line-height: 1.05; letter-spacing: -0.01em; margin-bottom: 22px; }
+  .mot-card .what {
+    border-top: 1px solid var(--line);
+    padding-top: 18px;
+  }
+  .mot-card .what .label, .mot-card .quote-block .label, .mot-card .impact .label {
+    font-family: var(--mono);
+    font-size: 24px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 10px;
+  }
+  .mot-card .what ul { padding: 0; margin: 0; list-style: none; }
+  .mot-card .what li {
+    font-size: 24px;
+    line-height: 1.3;
+    color: var(--ink);
+    padding: 6px 0 6px 22px;
+    position: relative;
+  }
+  .mot-card .what li::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 18px;
+    width: 7px; height: 7px;
+    background: var(--orange);
+    border-radius: 50%;
+  }
+  .mot-card .quote-block {
+    margin-top: 18px;
+    padding: 22px 24px;
+    background: var(--navy-deep);
+    color: #f4eee2;
+    border-radius: 14px;
+  }
+  .mot-card .quote-block .label { color: var(--orange); }
+  .mot-card .quote-block .q {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 28px;
+    line-height: 1.2;
+    margin-top: 4px;
+  }
+  .mot-card .impact {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+  }
+  .mot-card .impact .v {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--orange-deep);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  /* === Nudging opportunities === */
+  .nudge-intro {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 80px;
+    margin-top: 56px;
+  }
+  .nudge-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-top: 40px;
+  }
+  .nudge-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 28px 26px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  .nudge-card .stage-tag {
+    font-family: var(--mono);
+    font-size: 20px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 14px;
+  }
+  .nudge-card .h {
+    font-size: 38px;
+    font-weight: 600;
+    color: var(--navy);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+  .nudge-card .h em {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    color: var(--orange);
+  }
+  .nudge-card .row {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+  }
+  .nudge-card .row .label {
+    font-family: var(--mono);
+    font-size: 18px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 8px;
+  }
+  .nudge-card .row .problem { font-size: 20px; color: var(--ink); line-height: 1.35; }
+  .nudge-card .row .solution { font-size: 20px; color: var(--ink); line-height: 1.35; }
+  .nudge-card .target {
+    margin-top: auto;
+    padding-top: 18px;
+  }
+  .nudge-card .target .pill {
+    display: inline-block;
+    background: var(--navy);
+    color: #f4eee2;
+    font-family: var(--mono);
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    padding: 9px 14px;
+    border-radius: 999px;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  .nudge-card .target .pill .v { color: var(--orange); font-weight: 600; }
+
+  /* === Prototypes === */
+  .proto-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 22px;
+    margin-top: 40px;
+  }
+  .proto-card {
+    background: var(--bg-warm);
+    border-radius: 22px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .proto-card .head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .proto-card .stage-tag {
+    font-family: var(--mono);
+    font-size: 20px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--orange);
+  }
+  .proto-card h3 { font-size: 26px; font-weight: 600; color: var(--navy); letter-spacing: -0.01em; line-height: 1.1; }
+  .proto-slot {
+    flex: 1;
+    background: #fff;
+    border: 2px dashed rgba(26,43,74,0.16);
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 440px;
+    text-align: center;
+    padding: 16px;
+  }
+  .proto-slot .icon { font-family: var(--mono); font-size: 18px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--orange); }
+  .proto-slot .lbl { font-family: var(--mono); font-size: 18px; color: var(--ink-mute); letter-spacing: 0.04em; line-height: 1.3; }
+  .proto-card .what { font-size: 18px; color: var(--ink-soft); line-height: 1.4; }
+
+  /* Prototype screen placeholders (phone-style) */
+  .proto-screen {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+    min-width: 0;
+  }
+  .proto-screen-frame {
+    flex: 1;
+    background: #fff;
+    border-radius: 28px;
+    box-shadow:
+      0 0 0 8px #0A0E18,
+      0 0 0 9px #2A3142,
+      0 18px 40px -8px rgba(15, 23, 42, 0.22),
+      0 6px 18px -4px rgba(15, 23, 42, 0.10);
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
+    overflow: hidden;
+    min-height: 0;
+    position: relative;
+  }
+  .proto-screen-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+  }
+  .proto-screen-cap {
+    font-family: var(--mono);
+    font-size: 18px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    text-align: center;
+  }
+  .proto-screen-num {
+    font-family: var(--mono);
+    font-size: 14px;
+    letter-spacing: 0.16em;
+    color: var(--orange);
+    font-weight: 700;
+    margin-right: 8px;
+  }
+
+  /* Closing */
+  .closing { justify-content: center; align-items: center; text-align: center; background: var(--navy-deep); color: #f4eee2; }
+  .closing h2 { font-size: 200px; font-weight: 500; line-height: 0.95; letter-spacing: -0.04em; color: #f4eee2; }
+  .closing h2 em { font-family: var(--serif); font-style: italic; font-weight: 400; color: var(--orange); }
+  .closing .team { margin-top: 80px; font-family: var(--mono); font-size: 20px; letter-spacing: 0.16em; color: #c9c2b1; text-transform: uppercase; }
+  .closing .blob-c {
+    position: absolute;
+    width: 1100px;
+    opacity: 0.55;
+    mix-blend-mode: screen;
+    bottom: -300px;
+    left: -200px;
+  }
+  .closing .blob-c2 {
+    position: absolute;
+    width: 900px;
+    opacity: 0.55;
+    mix-blend-mode: screen;
+    top: -250px;
+    right: -150px;
+  }
+
+  /* Reusable helpers */
+  .row { display: flex; gap: 16px; }
+  .spacer { flex: 1; }
+  .grow { flex: 1; }
+  .pad-block { padding-top: 30px; padding-bottom: 30px; }
+
+  /* Hard-stop: text-wrap pretty */
+  .title, .subtitle, .lead, .body, .small { text-wrap: pretty; }
+
+  /* === María-in-the-middle flow diagram === */
+  .maria-flow {
+    display: grid;
+    grid-template-columns: 1fr 64px 1.15fr 64px 1fr;
+    gap: 0;
+    align-items: stretch;
+    margin-top: 28px;
+  }
+  .flow-node {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 24px 18px 26px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+  }
+  .flow-node .flow-label {
+    font-family: var(--mono);
+    font-size: 16px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 10px;
+    line-height: 1.2;
+  }
+  .flow-node .flow-name {
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+  .flow-node.afianzar {
+    background: var(--navy);
+    border-color: var(--navy);
+  }
+  .flow-node.afianzar .flow-label { color: var(--orange); }
+  .flow-node.afianzar .flow-name { color: #f4eee2; }
+  .flow-node.maria {
+    background: var(--bg-warm);
+    border: 2px solid var(--orange);
+    box-shadow: 0 14px 32px rgba(229,115,45,0.18);
+  }
+  .flow-node.maria .flow-label { color: var(--orange); font-weight: 600; }
+  .flow-node.maria .flow-name { color: var(--navy); }
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+  }
+  .flow-arrow svg {
+    width: 100%;
+    height: 24px;
+    display: block;
+  }
+
+  /* === KPI alignment fix: Today sits under "from", Goal sits under "to" === */
+  .kpi-pair {
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .kpi-pair .side {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+  .kpi-pair .v {
+    font-size: 36px;
+    line-height: 1;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .kpi-pair .side.today .v { color: var(--ink-mute); }
+  .kpi-pair .side.goal .v { color: #1f7a4d; font-weight: 600; font-size: 56px; }
+  .kpi-pair .side.goal .v .unit {
+    font-size: 24px;
+    color: #1f7a4d;
+    font-weight: 500;
+    margin-left: 4px;
+  }
+  .kpi-pair .arr-mark {
+    color: var(--orange);
+    font-size: 26px;
+    align-self: flex-start;
+    padding-top: 14px;
+  }
+  .kpi-pair .lbl {
+    font-family: var(--mono);
+    font-size: 18px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .kpi-pair .side.today .lbl { color: var(--ink-mute); }
+  .kpi-pair .side.goal .lbl { color: #1f7a4d; font-weight: 600; }
+
+  /* === Prototype split slides (interactive phone embeds) === */
+  .proto-split-body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 56px;
+    margin-top: 24px;
+    min-height: 0;
+    align-items: stretch;
+  }
+  .proto-phones-3,
+  .proto-phones-2 {
+    display: flex;
+    gap: 24px;
+    min-height: 0;
+    min-width: 0;
+    justify-content: center;
+    align-items: stretch;
+  }
+  .proto-phones-2 { gap: 36px; }
+  .proto-phone {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+    min-width: 0;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  .proto-phone-frame {
+    background: #fff;
+    border-radius: 26px;
+    box-shadow:
+      0 0 0 7px #0A0E18,
+      0 0 0 8px #2A3142,
+      0 18px 40px -8px rgba(15, 23, 42, 0.22),
+      0 6px 18px -4px rgba(15, 23, 42, 0.10);
+    overflow: hidden;
+    position: relative;
+    /* width / height are set by JS to fit the available column height
+       while keeping the 390x800 phone aspect ratio. */
+    flex: 0 0 auto;
+  }
+  .proto-phone-iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 390px;
+    height: 800px;
+    border: 0;
+    transform-origin: top left;
+    background: #fff;
+  }
+  .proto-screen-cap {
+    font-family: var(--mono);
+    font-size: 18px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .proto-tags-3 {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    justify-content: center;
+    min-width: 0;
+  }
+  .proto-tags-4 {
+    gap: 12px;
+  }
+  .proto-tags-4 .proto-tag {
+    padding: 14px 20px 16px;
+  }
+  .proto-tags-4 .proto-tag-h {
+    font-size: 22px;
+  }
+  .proto-tags-4 .proto-tag-d {
+    font-size: 17px;
+  }
+  .proto-tag {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--orange);
+    border-radius: 14px;
+    padding: 18px 22px 20px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 22px;
+    row-gap: 4px;
+    align-items: baseline;
+  }
+  .proto-tag-num {
+    grid-row: 1 / span 2;
+    align-self: start;
+    font-family: var(--mono);
+    font-size: 18px;
+    letter-spacing: 0.16em;
+    color: var(--orange);
+    font-weight: 700;
+    line-height: 1.4;
+    padding-top: 4px;
+  }
+  .proto-tag-h {
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--navy);
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+  .proto-tag-d {
+    font-size: 19px;
+    color: var(--ink-soft);
+    line-height: 1.35;
+    grid-column: 2;
+  }
+</style>
+</head>
+<body>
+
+<deck-stage width="1920" height="1080">
+
+  <!-- ============================= SLIDE 1 — COVER ============================= -->
+  <section data-label="01 Cover" data-screen-label="01 Cover">
+    <div class="slide cover">
+      <img class="blob-cover" src="assets/blob-orange-navy-blue.png" alt="" style="top: -180px; right: -180px; bottom: auto; left: auto; width: 1000px; opacity: 0.95; transform: rotate(155deg);" />
+      <div class="topbar">
+        <div class="brand" style="font-family: Helvetica">AFIANZAR INMOBILIARIA DE NARIÑO</div>
+        <div><span style="color: rgb(26, 43, 74); font-weight: 600">DIGITAL SERVICES DESIGN</span></div>
+      </div>
+
+      <div class="main">
+        <div style="max-width: 1300px;">
+          <h1>The invisible<br/><em>bottleneck.</em></h1>
+          <div class="sub">Nudging the onboarding process at Afianzar &mdash; where deals quietly die in the silence between actors.</div>
+        </div>
+        <div class="meta">
+          <div class="label">GROUP 7</div>
+          <div class="team">Philip Swart<br/>Qasim Almansoor<br/>Jesús Roberto Aguirre<br/>Tommaso Trufini<br/>Alankriti Khare<br/>Nathalia Rivera</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= SLIDE 2 — CONTEXT (section divider) ============================= -->
+  <section data-label="02 Section · Context" data-screen-label="02 Section · Context">
+    <div class="slide section-head">
+      <div class="num">01 · Context</div>
+      <h2>A policy that <em>guarantees</em> the rent.<br/>No co-signers. No deposits.</h2>
+      <div class="desc">Afianzar evaluates the tenant's financial profile and issues a policy directly to the property owner &mdash; eliminating the need for co-signers or cash deposits.</div>
+      <div style="margin-top:28px; font-family:var(--mono); font-size:22px; letter-spacing:0.16em; text-transform:uppercase; color:var(--orange); line-height:1.5; max-width:1300px;">A market built on trust, relationships, and word of mouth.</div>
+      <img class="blob-bg" src="assets/blob-orange-blue.png" alt="" />
+    </div>
+  </section>
+
+  <!-- ============================= SLIDE 3 — Afianzar at a glance ============================= -->
+  <section data-label="03 Context · Afianzar" data-screen-label="03 Context · Afianzar">
+    <div class="slide">
+
+      <div style="margin-top:20px;">
+        <div class="eyebrow">The business problem</div>
+        <h1 class="title" style="margin-top:18px; max-width:1600px;">
+          Demand is outgrowing <em style="font-family:var(--serif); color:var(--orange);">supply.</em><br/>
+          <span style="color:var(--ink-soft); font-weight:400;">The bottleneck is in the middle.</span>
+        </h1>
+      </div>
+
+      <div class="context-grid">
+        <div class="left">
+          <p style="font-size:32px; color:var(--ink); line-height:1.4; margin-top:0;">At today's capacity, the bottleneck is killing growth &mdash; for Afianzar, <em style="font-family:var(--serif); color:var(--orange);">and</em> for the agencies that depend on them.</p>
+
+          <div class="statline">
+            <div class="s"><div class="v">5/day</div><div class="l">Capacity per operator</div></div>
+            <div class="s"><div class="v">~130</div><div class="l">Applications / month</div></div>
+          </div>
+        </div>
+
+        <div class="right">
+          <div class="eyebrow" style="color:var(--ink-mute);">Where María sits</div>
+          <div class="maria-flow">
+            <div class="flow-node afianzar">
+              <span class="flow-label">The Guarantor</span>
+              <span class="flow-name">Afianzar</span>
+            </div>
+            <div class="flow-arrow">
+              <svg viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true">
+                <line x1="8" y1="14" x2="112" y2="14" stroke="#c7baa3" stroke-width="1.6"/>
+                <polygon points="8,7 0,14 8,21" fill="#c7baa3"/>
+                <polygon points="112,7 120,14 112,21" fill="#c7baa3"/>
+              </svg>
+            </div>
+            <div class="flow-node maria">
+              <span class="flow-label">In the middle</span>
+              <span class="flow-name">María &middot; Agency</span>
+            </div>
+            <div class="flow-arrow">
+              <svg viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true">
+                <line x1="8" y1="14" x2="112" y2="14" stroke="#c7baa3" stroke-width="1.6"/>
+                <polygon points="8,7 0,14 8,21" fill="#c7baa3"/>
+                <polygon points="112,7 120,14 112,21" fill="#c7baa3"/>
+              </svg>
+            </div>
+            <div class="flow-node tenant">
+              <span class="flow-label">The Renter</span>
+              <span class="flow-name">Tenant</span>
+            </div>
+          </div>
+          <div style="margin-top:28px; font-size:24px; color:var(--ink-mute); font-family:var(--mono); letter-spacing:0.02em; line-height:1.45;">
+            Afianzar never meets the tenant.<br/>
+            María is the face of the service.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= KPIs (moved to between Context · Afianzar and Section · The People) ============================= -->
+  <section data-label="04 KPIs" data-screen-label="04 KPIs">
+    <div class="slide">
+
+      <div style="margin-top:20px;">
+        <div class="eyebrow">KPIs</div>
+        <h1 class="title" style="margin-top:14px; font-size:64px;">Where the business <span style="color:var(--ink-soft); font-weight:400;">needs to go.</span></h1>
+        <div class="subtitle" style="margin-top:18px; max-width:1500px; font-size:30px;">To sustain growth &mdash; for Afianzar and for the agencies that depend on it &mdash; the bottleneck has to break. Here's what we're committing to in the <span style="color:var(--orange); font-weight:500;">next six months.</span></div>
+      </div>
+
+      <!-- Two KPI rows: Process quality (top) · Experience (bottom) -->
+      <div style="flex:1; display:flex; flex-direction:column; gap:36px; margin-top:44px;">
+
+        <!-- ROW 1 · PROCESS QUALITY -->
+        <div style="display:flex; flex-direction:column; gap:18px;">
+          <div style="display:flex; align-items:baseline; gap:18px;">
+            <span style="font-family:var(--mono); font-size:22px; letter-spacing:0.18em; text-transform:uppercase; color:var(--orange); font-weight:600;">Process quality</span>
+            <span style="flex:1; height:1px; background:var(--line);"></span>
+          </div>
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:0;">
+            <div class="kpi" style="border-left:0; padding-left:0;">
+              <div class="name" style="margin-top:0;">Average onboarding time</div>
+              <div class="kpi-pair">
+                <div class="side today">
+                  <div class="v">4 days</div>
+                  <div class="lbl">Today</div>
+                </div>
+                <div class="arr-mark">&rarr;</div>
+                <div class="side goal">
+                  <div class="v">4<span class="unit">hours</span></div>
+                  <div class="lbl">Goal</div>
+                </div>
+              </div>
+            </div>
+            <div class="kpi">
+              <div class="name" style="margin-top:0;">Applications processed</div>
+              <div class="kpi-pair">
+                <div class="side today">
+                  <div class="v">130</div>
+                  <div class="lbl">Today</div>
+                </div>
+                <div class="arr-mark">&rarr;</div>
+                <div class="side goal">
+                  <div class="v">300<span class="unit">/mo</span></div>
+                  <div class="lbl">Goal</div>
+                </div>
+              </div>
+            </div>
+            <div class="kpi">
+              <div class="name" style="margin-top:0;">Correction loop rate</div>
+              <div class="kpi-pair">
+                <div class="side today">
+                  <div class="v">30%</div>
+                  <div class="lbl">Today</div>
+                </div>
+                <div class="arr-mark">&rarr;</div>
+                <div class="side goal">
+                  <div class="v">&lt;5<span class="unit">%</span></div>
+                  <div class="lbl">Goal</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW 2 · EXPERIENCE -->
+        <div style="display:flex; flex-direction:column; gap:18px;">
+          <div style="display:flex; align-items:baseline; gap:18px;">
+            <span style="font-family:var(--mono); font-size:22px; letter-spacing:0.18em; text-transform:uppercase; color:var(--orange); font-weight:600;">Experience</span>
+            <span style="flex:1; height:1px; background:var(--line);"></span>
+          </div>
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:0;">
+            <div class="kpi" style="border-left:0; padding-left:0;">
+              <div class="name" style="margin-top:0;">Agency effort score</div>
+              <div class="kpi-pair">
+                <div class="side today">
+                  <div class="v">7</div>
+                  <div class="lbl">Today</div>
+                </div>
+                <div class="arr-mark">&rarr;</div>
+                <div class="side goal">
+                  <div class="v">3</div>
+                  <div class="lbl">Goal</div>
+                </div>
+              </div>
+            </div>
+            <div class="kpi">
+              <div class="name" style="margin-top:0;">Customer satisfaction (NPS)</div>
+              <div class="kpi-pair">
+                <div class="side today">
+                  <div class="v">5</div>
+                  <div class="lbl">Today</div>
+                </div>
+                <div class="arr-mark">&rarr;</div>
+                <div class="side goal">
+                  <div class="v">8.5</div>
+                  <div class="lbl">Goal</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+
+  <!-- ============================= SLIDE 7 — Section divider · The People ============================= -->
+  <section data-label="02 Section · The People" data-screen-label="02 Section · The People">
+    <div class="slide section-head">
+      <div class="num">02 · The People</div>
+      <h2>Behind every delayed deal,<br/>there's <em>María.</em></h2>
+      <div class="desc">If we want to fix the process, we have to start with the person who carries it.</div>
+      <img class="blob-bg" src="assets/blob-wave-orange-blue.png" alt="" style="bottom:-180px; right:-200px; width:900px;" />
+    </div>
+  </section>
+
+  <!-- ============================= SLIDE 8 — María persona ============================= -->
+  <section data-label="07 Meet Mar&iacute;a" data-screen-label="07 Meet María">
+    <div class="slide">
+
+      <div style="margin-top:30px;">
+        <div class="eyebrow">User persona</div>
+        <h1 class="title" style="margin-top:18px;">Meet María.<br/><span style="color:var(--ink-soft); font-weight:400;">The agency broker who fronts every deal.</span></h1>
+      </div>
+
+      <div class="persona">
+        <div class="persona-portrait">
+          <div>
+            <div class="avatar"><img src="assets/maria.png" alt="María Restrepo"/></div>
+            <div class="id">
+              <div class="name">María Restrepo</div>
+              <div class="role">Senior broker · Independent agency, Pasto</div>
+            </div>
+            <div class="stats">
+              <div class="s"><div class="l">Age</div><div class="v">38</div></div>
+              <div class="s"><div class="l">Experience</div><div class="v">12 years</div></div>
+              <div class="s"><div class="l">Deals / month</div><div class="v">8&ndash;12</div></div>
+              <div class="s"><div class="l">Tools</div><div class="v">WhatsApp · Email</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="persona-body">
+          <div class="persona-quote">"Send me everything ASAP.<br/>The faster you deliver, the faster we move forward."</div>
+
+          <div class="persona-cols">
+            <div>
+              <h4>Goals</h4>
+              <ul>
+                <li>Close deals fast &mdash; before the client walks.</li>
+                <li>Keep tenants and owners informed and confident.</li>
+                <li>Protect her reputation as a trusted broker.</li>
+                <li>Reduce coordination work between three parties.</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Frustrations</h4>
+              <ul>
+                <li>Zero visibility into Afianzar's process.</li>
+                <li>Every missing doc restarts a four-actor relay.</li>
+                <li>Clients pressuring her with questions she can't answer.</li>
+                <li>Feeling like a middleman with no real control.</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Motivations</h4>
+              <ul>
+                <li>Commissions &mdash; every closed deal is income.</li>
+                <li>Reputation &mdash; word-of-mouth fuels referrals.</li>
+                <li>Speed &mdash; faster decisions mean more deals per month.</li>
+              </ul>
+            </div>
+            <div>
+              <h4>What she needs</h4>
+              <ul>
+                <li>A single intake, structured by tenant profile.</li>
+                <li>Real-time status on every application.</li>
+                <li>A way to escape the relay loop for missing docs.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= SLIDE 9 — A day in María's life (animation) ============================= -->
+  <section data-label="08 A day in Mar&iacute;a's life" data-screen-label="08 A day in María's life">
+    <div class="slide" style="padding-top:70px; padding-bottom:60px;">
+
+      <div>
+        <h1 class="title">A day in <span style="color:var(--orange);">María's life.</span></h1>
+      </div>
+
+      <div id="maria-anim-wrap" style="flex:1; margin-top:32px; border-radius:24px; overflow:hidden; background:#faf7f2; position:relative; box-shadow: 0 24px 60px rgba(26,43,74,0.10), inset 0 0 0 1px var(--line);">
+        <iframe id="maria-anim-frame" data-src="animation/index.html" style="position:absolute; inset:0; width:100%; height:100%; border:0; display:block; background:#faf7f2;" loading="lazy" title="A day in María's life"></iframe>
+        <button id="maria-play-btn" type="button" aria-label="Play María's day"
+          style="position:absolute; inset:0; width:100%; height:100%; border:0; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:28px; padding:0; font-family:inherit;">
+          <span style="display:inline-flex; align-items:center; justify-content:center; width:160px; height:160px; border-radius:999px; background:var(--orange); box-shadow: 0 30px 80px rgba(229,115,45,0.35), 0 0 0 12px rgba(229,115,45,0.12); transition: transform 0.2s ease;">
+            <svg width="56" height="64" viewBox="0 0 56 64" aria-hidden="true"><polygon points="6,4 6,60 54,32" fill="#fff"/></svg>
+          </span>
+          <span style="font-family:var(--mono); font-size:22px; letter-spacing:0.22em; text-transform:uppercase; color:var(--navy); font-weight:600;">Play the day</span>
+          <span style="font-size:24px; color:var(--ink-mute); line-height:1.4; max-width:680px; text-align:center;">A 90-second animation of María juggling tenants, owners and Afianzar &mdash; in real time.</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= Section divider · Business Goals (moved after A day in María's life) ============================= -->
+  <section data-label="03 Section · Business Goals" data-screen-label="03 Section · Business Goals">
+    <div class="slide section-head">
+      <div class="num">03 · Business Goals</div>
+      <h2>The process is <em>broken</em><br/>&mdash; and María pays the price.</h2>
+      <div class="desc">Both Afianzar's and María's reputations are at stake. The bottleneck is killing them both.</div>
+      <img class="blob-bg" src="assets/blob-arrow-orange-purple.png" alt="" style="bottom:-220px; right:-300px; width:1200px;" />
+    </div>
+  </section>
+
+  
+
+  <!-- ============================= SLIDE 11 — User Journey ============================= -->
+  <section data-label="09 User journey" data-screen-label="09 User journey">
+    <div class="slide">
+
+      <div style="margin-top:20px;">
+        <div class="eyebrow">Current onboarding &middot; Map of María's experience</div>
+        <h1 class="title" style="margin-top:14px; font-size:54px;">Seven stages. Three actors.<br/><span style="color:var(--ink-soft); font-weight:400;">Fractured communication everywhere.</span></h1>
+      </div>
+
+      <div class="journey">
+        <div class="row-label first">Stage</div>
+        <div class="cell first-row"><div class="mot-label" style="visibility:hidden;">·</div><div class="stage"><span class="n">01</span><span class="name">Pre&#8209;engagement</span></div></div>
+        <div class="cell first-row"><div class="mot-label" style="visibility:hidden;">·</div><div class="stage"><span class="n">02</span><span class="name">Request</span></div></div>
+        <div class="cell first-row"><div class="mot-label" style="visibility:hidden;">·</div><div class="stage"><span class="n">03</span><span class="name">Doc collection</span></div></div>
+        <div class="cell first-row mot"><div class="mot-label">Moment of truth</div><div class="stage"><span class="n">04</span><span class="name">Submission</span></div></div>
+        <div class="cell first-row mot"><div class="mot-label">Moment of truth</div><div class="stage"><span class="n">05</span><span class="name">Review &amp; study</span></div></div>
+        <div class="cell first-row mot"><div class="mot-label">Moment of truth</div><div class="stage"><span class="n">06</span><span class="name">Decision</span></div></div>
+        <div class="cell first-row"><div class="mot-label" style="visibility:hidden;">·</div><div class="stage"><span class="n">07</span><span class="name">Contract sign</span></div></div>
+
+        <div class="row-label">Touchpoints</div>
+        <div class="cell"><span class="channel-pill">In person</span><span class="channel-pill">Referral</span></div>
+        <div class="cell"><span class="channel-pill">WhatsApp</span></div>
+        <div class="cell"><span class="channel-pill">WhatsApp</span><span class="channel-pill">Email</span></div>
+        <div class="cell mot"><span class="channel-pill">Email</span><span class="channel-pill">Phone</span></div>
+        <div class="cell mot"><span class="channel-pill">&mdash; silence &mdash;</span></div>
+        <div class="cell mot"><span class="channel-pill">Phone</span><span class="channel-pill">Email</span></div>
+        <div class="cell"><span class="channel-pill">In person</span><span class="channel-pill">Email</span></div>
+
+        <div class="row-label">María's action</div>
+        <div class="cell"><div class="touch">I evaluate based on past experience, research and referrals.</div></div>
+        <div class="cell"><div class="touch">I ask the tenant for the docs <em>I think</em> will be enough.</div></div>
+        <div class="cell"><div class="touch">I chase missing docs and try to anticipate what Afianzar will need.</div></div>
+        <div class="cell mot"><div class="touch">I compile everything and send to Afianzar. Then I call to confirm receipt.</div></div>
+        <div class="cell mot"><div class="touch">I wait. Then I wait some more.</div></div>
+        <div class="cell mot"><div class="touch">Afianzar approves or asks for more. I pass the news to the tenant.</div></div>
+        <div class="cell"><div class="touch">I coordinate signatures across all parties &mdash; lease &amp; insurance.</div></div>
+
+        <div class="row-label">Emotion</div>
+        <div class="cell"><div class="emotion-tag" style="color:var(--navy);">Confident</div><div class="emotion">"I need a trustworthy partner."</div></div>
+        <div class="cell"><div class="emotion-tag" style="color:var(--navy);">Excited</div><div class="emotion">"I want to close this quickly."</div></div>
+        <div class="cell"><div class="emotion-tag" style="color:#a48a2c;">Worried</div><div class="emotion">"If they ask for more docs, we lose time."</div></div>
+        <div class="cell mot"><div class="emotion-tag" style="color:var(--orange-deep);">Anxious</div><div class="emotion">"Did everything arrive correctly?"</div></div>
+        <div class="cell mot"><div class="emotion-tag" style="color:var(--orange-deep);">Stressed</div><div class="emotion">"I have no visibility &mdash; I hate this part."</div></div>
+        <div class="cell mot"><div class="emotion-tag" style="color:var(--orange-deep);">Anxious</div><div class="emotion">"The client keeps asking and I have no answer."</div></div>
+        <div class="cell"><div class="emotion-tag" style="color:var(--navy);">Relieved</div><div class="emotion">"Almost there &mdash; just need signatures."</div></div>
+
+        <div class="row-label">Pain points</div>
+        <div class="cell"><div class="pain"><span class="pain-dot">&bull;</span>Decision relies on word of mouth.</div></div>
+        <div class="cell"><div class="pain"><span class="pain-dot">&bull;</span>No profile-specific checklist.</div><div class="pain"><span class="pain-dot">&bull;</span>Unclear who qualifies.</div></div>
+        <div class="cell"><div class="pain"><span class="pain-dot">&bull;</span>No unified channel.</div><div class="pain"><span class="pain-dot">&bull;</span>Risk of incomplete package.</div></div>
+        <div class="cell mot"><div class="pain"><span class="pain-dot">&bull;</span>Multiple partial emails.</div><div class="pain"><span class="pain-dot">&bull;</span>No acknowledgment.</div></div>
+        <div class="cell mot"><div class="pain"><span class="pain-dot">&bull;</span>Zero visibility.</div><div class="pain"><span class="pain-dot">&bull;</span>No ETA possible.</div></div>
+        <div class="cell mot"><div class="pain"><span class="pain-dot">&bull;</span>Each info request restarts the loop.</div><div class="pain"><span class="pain-dot">&bull;</span>Risk of client withdrawing.</div></div>
+        <div class="cell"><div class="pain"><span class="pain-dot">&bull;</span>Physical signatures required.</div><div class="pain"><span class="pain-dot">&bull;</span>Manual contract drafting.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= SLIDE 12 — UX failure (merged) ============================= -->
+  <section data-label="11 UX failure" data-screen-label="11 UX failure">
+    <div class="slide warm">
+
+      <div style="margin-top:20px;">
+        <div class="eyebrow">What is failing in the experience</div>
+        <h1 class="title" style="margin-top:14px;">Three symptoms.<br/><span style="color:var(--orange);">One broken experience.</span></h1>
+        <div class="subtitle" style="margin-top:18px; max-width:1500px;">At every moment of truth, the system fails María &mdash; and she absorbs the cost in front of the client.</div>
+      </div>
+
+      <div style="flex:1; display:grid; grid-template-columns: 1fr 1fr 1fr; gap:32px; margin-top:50px;">
+
+        <!-- SYMPTOM 01 -->
+        <div style="background:#fff; border-radius:20px; padding:32px; display:flex; flex-direction:column; box-shadow: 0 2px 0 var(--line);">
+          <div style="display:flex; align-items:baseline; gap:14px;">
+            <span style="font-family:var(--mono); font-size:20px; letter-spacing:0.18em; text-transform:uppercase; color:var(--ink-mute); font-weight:600;">Symptom 01</span>
+            <span style="font-family:var(--mono); font-size:16px; letter-spacing:0.18em; text-transform:uppercase; color:var(--orange);">&middot; Stage 04 Submission</span>
+          </div>
+          <h3 style="margin-top:14px; font-size:42px; font-weight:600; color:var(--navy); line-height:1.02; letter-spacing:-0.015em;">Fragmented submission.</h3>
+          <p style="margin-top:18px; font-size:22px; color:var(--ink-soft); line-height:1.4;">Documents trickle in across WhatsApp, email and phone &mdash; partial, out of order, sometimes lost in the thread. The agency never knows if the package is complete.</p>
+          <div style="margin-top:auto; padding-top:22px; border-top:1px solid var(--line);">
+            <div style="font-family:var(--mono); font-size:16px; letter-spacing:0.16em; text-transform:uppercase; color:var(--orange); margin-bottom:8px;">María says</div>
+            <div style="font-family:var(--serif); font-style:italic; font-size:24px; color:var(--navy); line-height:1.2;">"I feel invisible. Powerless. Completely out of control."</div>
+            <div style="margin-top:18px; font-size:22px; color:var(--orange-deep); font-weight:600; line-height:1.25;">~30% of submissions arrive incomplete<br/>&rarr; study can't begin.</div>
+          </div>
+        </div>
+
+        <!-- SYMPTOM 02 -->
+        <div style="background:#fff; border-radius:20px; padding:32px; display:flex; flex-direction:column; box-shadow: 0 2px 0 var(--line);">
+          <div style="display:flex; align-items:baseline; gap:14px;">
+            <span style="font-family:var(--mono); font-size:20px; letter-spacing:0.18em; text-transform:uppercase; color:var(--ink-mute); font-weight:600;">Symptom 02</span>
+            <span style="font-family:var(--mono); font-size:16px; letter-spacing:0.18em; text-transform:uppercase; color:var(--orange);">&middot; Stage 05 Review</span>
+          </div>
+          <h3 style="margin-top:14px; font-size:42px; font-weight:600; color:var(--navy); line-height:1.02; letter-spacing:-0.015em;">Invisible process.</h3>
+          <p style="margin-top:18px; font-size:22px; color:var(--ink-soft); line-height:1.4;">Once submitted, the case enters a black box. No tracking, no ETA, no acknowledgment. The agency has nothing to tell the client &mdash; just silence.</p>
+          <div style="margin-top:auto; padding-top:22px; border-top:1px solid var(--line);">
+            <div style="font-family:var(--mono); font-size:16px; letter-spacing:0.16em; text-transform:uppercase; color:var(--orange); margin-bottom:8px;">María says</div>
+            <div style="font-family:var(--serif); font-style:italic; font-size:24px; color:var(--navy); line-height:1.2;">"I feel like a middleman with no clue what's happening."</div>
+            <div style="margin-top:18px; font-size:22px; color:var(--orange-deep); font-weight:600; line-height:1.25;">4&ndash;24 hours of silence<br/>&rarr; clients consider other properties.</div>
+          </div>
+        </div>
+
+        <!-- SYMPTOM 03 -->
+        <div style="background:#fff; border-radius:20px; padding:32px; display:flex; flex-direction:column; box-shadow: 0 2px 0 var(--line);">
+          <div style="display:flex; align-items:baseline; gap:14px;">
+            <span style="font-family:var(--mono); font-size:20px; letter-spacing:0.18em; text-transform:uppercase; color:var(--ink-mute); font-weight:600;">Symptom 03</span>
+            <span style="font-family:var(--mono); font-size:16px; letter-spacing:0.18em; text-transform:uppercase; color:var(--orange);">&middot; Stage 06 Decision</span>
+          </div>
+          <h3 style="margin-top:14px; font-size:42px; font-weight:600; color:var(--navy); line-height:1.02; letter-spacing:-0.015em;">Endless relay loops.</h3>
+          <p style="margin-top:18px; font-size:22px; color:var(--ink-soft); line-height:1.4;">Any missing document triggers a four-actor relay. María chases the tenant, the tenant chases the bank, and every round adds days. Each loop feels like starting from zero.</p>
+          <div style="margin-top:auto; padding-top:22px; border-top:1px solid var(--line);">
+            <div style="font-family:var(--mono); font-size:16px; letter-spacing:0.16em; text-transform:uppercase; color:var(--orange); margin-bottom:8px;">María says</div>
+            <div style="font-family:var(--serif); font-style:italic; font-size:24px; color:var(--navy); line-height:1.2;">"Each loop feels like starting from zero. I'm exhausted."</div>
+            <div style="margin-top:18px; font-size:22px; color:var(--orange-deep); font-weight:600; line-height:1.25;">+1 to +3 days per loop<br/>&rarr; deals quietly die.</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================= SLIDE 13 — Section divider · The intervention ============================= -->
+  <section data-label="11 Section · The intervention" data-screen-label="11 Section · The intervention">
+    <div class="slide section-head">
+      <div class="num">04 · The intervention</div>
+      <h2>A new platform <em>built</em> from scratch.</h2>
+      <div class="desc">There is nothing like this in Afianzar today. We're introducing a platform &mdash; not a workaround &mdash; that removes the friction at every moment of truth and unlocks growth for María's agency <em style="font-family:var(--serif); font-style:italic;">and</em> for Afianzar.</div>
+      <img class="blob-bg" src="assets/blob-orange-cyan.png" alt="" style="bottom:-180px; right:-120px; width:1000px; opacity:0.8;" />
+    </div>
+  </section>
+
+  <!-- ============================= SLIDE 14 — Nudging opportunities ============================= -->
+  <section data-label="13 Nudging opportunities" data-screen-label="13 Nudging opportunities">
+    <div class="slide">
+
+      <div style="margin-top:20px;">
+        <div class="eyebrow">Where we intervene &mdash; and how</div>
+        <h1 class="title" style="margin-top:14px;">One platform. <span style="color:var(--orange);">Four targeted nudges.</span></h1>
+        <div class="subtitle" style="margin-top:14px; max-width:1500px;">Each nudge reduces friction, builds trust, and moves the deal forward &mdash; without re-engineering the business.</div>
+      </div>
+
+      <div class="nudge-grid">
+        <div class="nudge-card">
+          <div class="stage-tag">Stage 04 &middot; Submission</div>
+          <div class="h">Submit once,<br/><em>complete.</em></div>
+          <div class="row">
+            <div class="label">The problem</div>
+            <div class="problem">30% of submissions arrive incomplete. Each missing doc triggers a relay loop adding 1&ndash;3 days.</div>
+          </div>
+          <div class="row">
+            <div class="label">The nudge</div>
+            <div class="solution">A profile-specific digital checklist. María submits one structured form &mdash; no email, no fragments.</div>
+          </div>
+          <div class="target">
+            <div class="pill">Incomplete rate <span class="v">&lt; 5%</span></div>
+          </div>
+        </div>
+
+        <div class="nudge-card">
+          <div class="stage-tag">STAGE 05 · REVIEW</div>
+          <div class="h">End the<br/><em>silence.</em></div>
+          <div class="row">
+            <div class="label">The problem</div>
+            <div class="problem">4&ndash;24 hours of silence after submission. María has nothing to report. Tenants start considering other properties.</div>
+          </div>
+          <div class="row">
+            <div class="label">The nudge</div>
+            <div class="solution">Automatic confirmation the moment the case is received and opened &mdash; within one hour.</div>
+          </div>
+          <div class="target">
+            <div class="pill">Acknowledgment <span class="v">&lt; 1 hour</span></div>
+          </div>
+        </div>
+
+        <div class="nudge-card">
+          <div class="stage-tag">Stage 05 &middot; Review</div>
+          <div class="h">Automate the<br/><em>scoring.</em></div>
+          <div class="row">
+            <div class="label">The problem</div>
+            <div class="problem">Operator manually uploads docs to multiple consulting platforms to assess credit score and risk &mdash; the bottleneck.</div>
+          </div>
+          <div class="row">
+            <div class="label">The nudge</div>
+            <div class="solution">API rules consult the platforms automatically and return a verdict: <b>approve</b>, <b>manual review</b>, or <b>reject</b>. Humans only handle edge cases.</div>
+          </div>
+          <div class="target">
+            <div class="pill">Auto-decision rate <span class="v">&gt; 70%</span></div>
+          </div>
+        </div>
+
+        <div class="nudge-card">
+          <div class="stage-tag">Stage 06 &middot; Decision</div>
+          <div class="h">Break the<br/><em>relay loop.</em></div>
+          <div class="row">
+            <div class="label">The problem</div>
+            <div class="problem">Any missing doc triggers a 4-actor chain adding 1&ndash;3 days. María deflects to Afianzar instead of managing the tenant.</div>
+          </div>
+          <div class="row">
+            <div class="label">The nudge</div>
+            <div class="solution">Afianzar contacts the tenant directly for missing docs. María gets a notification. Loop eliminated.</div>
+          </div>
+          <div class="target">
+            <div class="pill">Correction loop <span class="v">&lt; 10%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= PROTOTYPE STYLES (added for split slides) ============================= -->
+
+  <!-- ============================= PROTOTYPE SPLIT — Problem 1 · Fragmented submission ============================= -->
+  <section data-label="14 Problem 1 · Submission" data-screen-label="14 Problem 1 · Submission">
+    <div class="slide">
+
+      <div style="margin-top:10px;">
+        <div class="eyebrow">Nudge 01 of 04</div>
+        <h1 class="title" style="margin-top:10px; font-size:56px;">Submit once, <em style="font-family:var(--serif); color:var(--orange);">complete.</em></h1>
+        <div class="subtitle" style="margin-top:10px; max-width:1500px; font-size:26px;">A profile-specific digital checklist &mdash; María submits one structured form, no email, no fragments. <span style="color:var(--ink); font-weight:500;">Solving the 30% incomplete-submissions problem.</span></div>
+      </div>
+
+      <div class="proto-split-body">
+        <div class="proto-phones-2">
+          <div class="proto-phone">
+            <div class="proto-phone-frame"><iframe class="proto-phone-iframe" src="prototype/embed.html?s=details" loading="lazy" title="Property &amp; owner details"></iframe></div>
+            <div class="proto-screen-cap"><span class="proto-screen-num">01</span>Property &amp; owner</div>
+          </div>
+          <div class="proto-phone">
+            <div class="proto-phone-frame"><iframe class="proto-phone-iframe" src="prototype/embed.html?s=confirm" loading="lazy" title="Review &amp; send"></iframe></div>
+            <div class="proto-screen-cap"><span class="proto-screen-num">02</span>Review &amp; send</div>
+          </div>
+        </div>
+        <div class="proto-tags-3 proto-tags-4">
+          <div class="proto-tag"><div class="proto-tag-num">01</div><div class="proto-tag-h">One single platform</div><div class="proto-tag-d">Eliminating fragmented communication across WhatsApp, email and phone.</div></div>
+          <div class="proto-tag"><div class="proto-tag-num">02</div><div class="proto-tag-h">Tailored document list</div><div class="proto-tag-d">Specific to the type of client &mdash; no more guessing what Afianzar will need.</div></div>
+          <div class="proto-tag"><div class="proto-tag-num">03</div><div class="proto-tag-h">Property &amp; owner captured</div><div class="proto-tag-d">Auto-generates the contract and the policy &mdash; no manual drafting later.</div></div>
+          <div class="proto-tag"><div class="proto-tag-num">04</div><div class="proto-tag-h">Tenant gets a link</div><div class="proto-tag-d">The tenant uploads all documents directly. One channel &mdash; no intervention from María.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= PROTOTYPE SPLIT — Problem 2 · Invisible process ============================= -->
+  <section data-label="15 Problem 2 · Visibility" data-screen-label="15 Problem 2 · Visibility">
+    <div class="slide">
+
+      <div style="margin-top:10px;">
+        <div class="eyebrow">Nudge 02 of 04</div>
+        <h1 class="title" style="margin-top:10px; font-size:56px;">End the <em style="font-family:var(--serif); color:var(--orange);">silence.</em></h1>
+        <div class="subtitle" style="margin-top:10px; max-width:1500px; font-size:26px;">Automatic confirmation the moment the case is received &mdash; within one hour. <span style="color:var(--ink); font-weight:500;">Solving the 4&ndash;24 hours of silence problem.</span></div>
+      </div>
+
+      <div class="proto-split-body">
+        <div class="proto-phones-2">
+          <div class="proto-phone">
+            <div class="proto-phone-frame"><iframe class="proto-phone-iframe" src="prototype/embed.html?s=home" loading="lazy" title="Dashboard"></iframe></div>
+            <div class="proto-screen-cap"><span class="proto-screen-num">01</span>Dashboard</div>
+          </div>
+          <div class="proto-phone">
+            <div class="proto-phone-frame"><iframe class="proto-phone-iframe" src="prototype/embed.html?s=detail" loading="lazy" title="Case detail"></iframe></div>
+            <div class="proto-screen-cap"><span class="proto-screen-num">02</span>Case detail &amp; timeline</div>
+          </div>
+        </div>
+        <div class="proto-tags-3">
+          <div class="proto-tag"><div class="proto-tag-num">01</div><div class="proto-tag-h">Automatic reminders</div><div class="proto-tag-d">The platform nudges the tenant directly &mdash; María isn't chasing Pepe or Juan anymore.</div></div>
+          <div class="proto-tag"><div class="proto-tag-num">02</div><div class="proto-tag-h">Real-time status</div><div class="proto-tag-d">Every stage of the review visible at a glance, on one shared dashboard.</div></div>
+          <div class="proto-tag"><div class="proto-tag-num">03</div><div class="proto-tag-h">Every case in one place</div><div class="proto-tag-d">María sees all her applicants at once &mdash; visibility that lets her scale her business.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= PROTOTYPE SPLIT — Problem 3 · Manual review ============================= -->
+  <section data-label="16 Problem 3 · Scoring" data-screen-label="16 Problem 3 · Scoring">
+    <div class="slide">
+
+      <div style="margin-top:10px;">
+        <div class="eyebrow">Nudge 03 of 04</div>
+        <h1 class="title" style="margin-top:10px; font-size:56px;">Automate the <em style="font-family:var(--serif); color:var(--orange);">scoring.</em></h1>
+        <div class="subtitle" style="margin-top:10px; max-width:1500px; font-size:26px;">API rules consult credit &amp; risk platforms automatically and return a verdict &mdash; approve, manual review, or reject. <span style="color:var(--ink); font-weight:500;">Solving the manual-scoring bottleneck.</span></div>
+      </div>
+
+      <div class="proto-split-body">
+        <div class="proto-phones-2">
+          <div class="proto-phone">
+            <div class="proto-phone-frame"><iframe class="proto-phone-iframe" src="prototype/embed.html?s=detail" loading="lazy" title="Case detail"></iframe></div>
+            <div class="proto-screen-cap"><span class="proto-screen-num">01</span>Auto-decision in progress</div>
+          </div>
+          <div class="proto-phone">
+            <div class="proto-phone-frame"><iframe class="proto-phone-iframe" src="prototype/embed.html?s=result" loading="lazy" title="Result approved"></iframe></div>
+            <div class="proto-screen-cap"><span class="proto-screen-num">02</span>Decision delivered</div>
+          </div>
+        </div>
+        <div class="proto-tags-3">
+          <div class="proto-tag"><div class="proto-tag-num">01</div><div class="proto-tag-h">APIs do the lookups</div><div class="proto-tag-d">Credit &amp; risk platforms are consulted automatically &mdash; no operator copy-paste.</div></div>
+          <div class="proto-tag"><div class="proto-tag-num">02</div><div class="proto-tag-h">Auto-decision in minutes</div><div class="proto-tag-d">Approve, manual review, or reject &mdash; returned the moment the file is complete.</div></div>
+          <div class="proto-tag"><div class="proto-tag-num">03</div><div class="proto-tag-h">Humans on edge cases</div><div class="proto-tag-d">Operators focus only on the cases that need judgment. 70%+ auto-resolved.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= PROTOTYPE SPLIT — Problem 4 · Relay loop ============================= -->
+  <section data-label="17 Problem 4 · Relay loop" data-screen-label="17 Problem 4 · Relay loop">
+    <div class="slide">
+
+      <div style="margin-top:10px;">
+        <div class="eyebrow">Nudge 04 of 04</div>
+        <h1 class="title" style="margin-top:10px; font-size:56px;">Break the <em style="font-family:var(--serif); color:var(--orange);">relay loop.</em></h1>
+        <div class="subtitle" style="margin-top:10px; max-width:1500px; font-size:26px;">Afianzar contacts the tenant directly for missing docs &mdash; María gets a notification, not a chore. <span style="color:var(--ink); font-weight:500;">Solving the relay-loop problem.</span></div>
+      </div>
+
+      <div class="proto-split-body">
+        <div class="proto-phones-2">
+          <div class="proto-phone">
+            <div class="proto-phone-frame"><iframe class="proto-phone-iframe" src="prototype/embed.html?s=checklist" loading="lazy" title="Document checklist"></iframe></div>
+            <div class="proto-screen-cap"><span class="proto-screen-num">01</span>Tenant doc checklist</div>
+          </div>
+          <div class="proto-phone">
+            <div class="proto-phone-frame"><iframe class="proto-phone-iframe" src="prototype/embed.html?s=correction" loading="lazy" title="Correction request"></iframe></div>
+            <div class="proto-screen-cap"><span class="proto-screen-num">02</span>Notification to María</div>
+          </div>
+        </div>
+        <div class="proto-tags-3 proto-tags-4">
+          <div class="proto-tag"><div class="proto-tag-num">01</div><div class="proto-tag-h">Direct to the tenant</div><div class="proto-tag-d">Afianzar reaches the tenant through in-app messages for missing docs &mdash; cutting the agency out of the chase.</div></div>
+          <div class="proto-tag"><div class="proto-tag-num">02</div><div class="proto-tag-h">Alerts to all parties</div><div class="proto-tag-d">Updates land on tenant, owner and María at the same time. No one is the messenger.</div></div>
+          <div class="proto-tag"><div class="proto-tag-num">03</div><div class="proto-tag-h">María stays informed</div><div class="proto-tag-d">She gets a notification, not a chore. Visibility without effort.</div></div>
+          <div class="proto-tag"><div class="proto-tag-num">04</div><div class="proto-tag-h">From 3 actors to 2</div><div class="proto-tag-d">The relay collapses. Correction loops drop from 30% to under 10%.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= SLIDE 16 — Closing ============================= -->
+  <section data-label="15 Closing" data-screen-label="15 Closing">
+    <div class="slide closing">
+      <img class="blob-c" src="assets/blob-orange-blue.png" alt="" />
+      <img class="blob-c2" src="assets/blob-wave-blue-orange.png" alt="" />
+      <div style="position:relative; z-index:2;">
+        <div style="font-family:var(--mono); font-size:22px; letter-spacing:0.25em; color:var(--orange); text-transform:uppercase;">Thank you</div>
+        <h2 style="margin-top:30px;">Make the invisible<br/><em>visible.</em></h2>
+        <div class="team">Group 7 &middot; Design Services</div>
+      </div>
+    </div>
+  </section>
+
+</deck-stage>
+
+<script type="application/json" id="speaker-notes">
+[
+  "Welcome. I'm here today to walk you through a project we've been working on with Afianzar Inmobiliaria de Nariño — a rental insurance company in Colombia. The title of this presentation is The Invisible Bottleneck, because the problem we're going to talk about isn't a technology problem, it's a coordination problem. It's invisible because . And it's quietly costing them deals every single week. Our approach has been very much people-first: we mapped the experience, found the moments where it breaks, and designed four small nudges to fix them.",
+  "Let's start with the basics — who Afianzar is, and why the market they sit in matters. Because the way this business is structured is actually the whole reason the bottleneck exists in the first place.",
+  "Afianzar is a rental insurance and guarantee company. In Colombia, most rentals happen through local real estate agencies, and Afianzar sits behind those agencies as the financial backbone. When a tenant wants to rent a place, Afianzar evaluates their financial profile and issues a policy that guarantees the rent payments to the property owner. So the owner doesn't need a co-signer or a cash deposit — they have Afianzar's guarantee instead. The key thing on the right is the ecosystem. The agency is the client. The tenant is a support actor in the process. The property owner is the client's client. And Afianzar sits in the middle but never actually meets the tenant. The agency is the one carrying the relationship — that dependency matters a lot in the next slides.",
+  "Now that we know the players, let's talk about why this is a problem worth solving. The people who feel the pain the most aren't Afianzar themselves — it's the agencies who front the service. Their reputation is on the line, not Afianzar's.",
+  "These are the KPIs we're tracking. We've split them into two groups on purpose. Process quality is what the operator delivers — onboarding time, applications processed, correction loop rate. Experience is what the agency and client feel — the effort score and NPS. The headline numbers: four days down to four hours, 30% rework down to under 5%, and NPS from 5 to 8.5. The point of having both groups is that we can't just be faster — it has to feel faster too. Otherwise we haven't really fixed the problem.",
+  "Okay. We've talked about the business and the numbers. But you can't fix any of this in the abstract. Every delayed deal has a real person behind it, and her name is María.",
+  "Meet María. She's a senior broker at an independent real estate agency in Pasto. Twelve years of experience, eight to twelve deals a month. The quote is the one we kept hearing in interviews: send me everything ASAP, the faster you deliver, the faster we move forward. Her goals are simple — close deals fast, keep everyone informed, protect her reputation. Her frustrations are exactly the symptoms we'll come back to: zero visibility into Afianzar, every missing doc kicks off a relay she has to manage, clients pressure her with questions she literally cannot answer. Her motivations are also worth noticing — commissions, reputation, speed. María cares deeply about closing deals, but the process is fighting her at every step.",
+  "To make this concrete, we built a short animation showing what María's day actually looks like. Three phone calls, six WhatsApp chats, two emails — and at six in the evening she still doesn't know whether her client's case has been opened yet. I'll let the animation tell that story.",
+  "Here's the full journey. Read it left to right. Pre-engagement, request, document collection — these are noisy but manageable. Then we hit the orange band: submission, review, decision. This is where María's emotional state collapses. She goes from worried to anxious to stressed to exhausted. The pain points on the bottom row are concrete: no acknowledgment, no visibility, no ETA, restarted loops, the constant risk of the client walking. The right side — contract sign — only feels relieved because the worst is already behind her.",
+  "Three of those stages are what we're calling moments of truth. They're where the system breaks the experience. Let's go deeper on each one.",
+  "Here's what's actually failing in the user experience. Three symptoms, one broken experience. Symptom one, at submission: fragmented intake. Documents trickle in across multiple channels, partial and out of order. Roughly 30% of submissions arrive incomplete. Symptom two, at review: invisible process. Once a case is in, it disappears into a black box. Four to twenty-four hours of silence with nothing to report to the client. Symptom three, at decision: endless relay loops. Any missing document triggers a four-actor chain that adds one to three days, and each loop feels like starting from zero. The quotes underneath are María's own words — invisible, middleman, exhausted. And at the bottom: the agency's reputation is directly affected by Afianzar's performance. They are the face of the service.",
+  "We had a choice. We could try to re-engineer the entire process. Or we could find the smallest, sharpest interventions that fix the moments where deals actually die. We chose the second approach — four targeted nudges.",
+  "Here are the four nudges. Nudge one, at submission: a profile-specific digital checklist. One structured form. No more emails, no more fragments. Target: incomplete submissions below five percent. Nudge two, acknowledgment at review: automatic confirmation the moment the case is received and opened — within one hour. No more silence. Nudge three, the new one: automate the scoring. Right now the operator manually uploads documents to multiple consulting platforms to check credit score and risk. We replace that with API rules that consult those platforms automatically and return a verdict — approve, manual review, or reject. Only the edge cases need human intervention. Target: more than 70% of cases auto-decided. Nudge four, at decision: Afianzar contacts the tenant directly when a doc is missing. María gets a notification, but she doesn't have to manage the relay. The loop is eliminated.",
+  "And here's how those four nudges show up in the actual product. Four screens, one platform. A structured submission form, a real-time status tracker, an automated scoring console, and a direct outreach flow to the tenant. I'll walk through each prototype now.",
+  "That's the story. The invisible bottleneck at Afianzar isn't a capacity problem — it's a coordination problem. And we believe it can be fixed with four small, well-placed nudges. Thank you. We're happy to take questions."
+]
+</script>
+
+<script>
+  // Pin slide-position to localStorage for refresh-resilience
+  const stage = document.querySelector('deck-stage');
+  stage?.addEventListener('slidechange', (e) => {
+    try { localStorage.setItem('afianzar-deck-slide', String(e.detail.index)); } catch {}
+  });
+
+  // María's day — click-to-play, no autoplay
+  (function() {
+    const btn = document.getElementById('maria-play-btn');
+    const frame = document.getElementById('maria-anim-frame');
+    if (!btn || !frame) return;
+    btn.addEventListener('click', () => {
+      const src = frame.getAttribute('data-src');
+      if (src && !frame.src) frame.src = src;
+      btn.style.transition = 'opacity 0.35s ease';
+      btn.style.opacity = '0';
+      btn.style.pointerEvents = 'none';
+      setTimeout(() => { btn.remove(); }, 400);
+    });
+    btn.addEventListener('mouseenter', () => {
+      const circle = btn.querySelector('span');
+      if (circle) circle.style.transform = 'scale(1.06)';
+    });
+    btn.addEventListener('mouseleave', () => {
+      const circle = btn.querySelector('span');
+      if (circle) circle.style.transform = 'scale(1)';
+    });
+  })();
+
+  // Auto-fit prototype phone embeds (native 390x800) into their column.
+  // We size the phone-frame box AND the iframe inside it so 2-phone vs
+  // 3-phone layouts both fit without overflowing the slide.
+  (function() {
+    const PHONE_W = 390;
+    const PHONE_H = 800;
+    const ASPECT = PHONE_W / PHONE_H;
+
+    function fitPhone(phone) {
+      const frame = phone.querySelector('.proto-phone-frame');
+      const iframe = phone.querySelector('.proto-phone-iframe');
+      const cap = phone.querySelector('.proto-screen-cap');
+      if (!frame || !iframe) return;
+      const colW = phone.clientWidth;
+      const colH = phone.clientHeight;
+      const capH = cap ? (cap.offsetHeight + 12 /* gap */) : 0;
+      const availH = Math.max(0, colH - capH);
+      if (!colW || !availH) return;
+      // Choose the largest size that fits both width and height while
+      // preserving the phone aspect ratio.
+      let frameH = availH;
+      let frameW = frameH * ASPECT;
+      if (frameW > colW) {
+        frameW = colW;
+        frameH = frameW / ASPECT;
+      }
+      frame.style.width = frameW + 'px';
+      frame.style.height = frameH + 'px';
+      // Iframe sits inside at native 390x800, scaled to match the frame.
+      const scale = frameW / PHONE_W;
+      iframe.style.width = PHONE_W + 'px';
+      iframe.style.height = PHONE_H + 'px';
+      iframe.style.transform = `scale(${scale})`;
+    }
+    function fitAll() {
+      document.querySelectorAll('.proto-phone').forEach(fitPhone);
+    }
+    fitAll();
+    window.addEventListener('resize', fitAll);
+    [100, 400, 1000, 2000, 3500].forEach(t => setTimeout(fitAll, t));
+    if (window.ResizeObserver) {
+      const ro = new ResizeObserver((entries) => {
+        entries.forEach(e => fitPhone(e.target));
+      });
+      document.querySelectorAll('.proto-phone').forEach(p => ro.observe(p));
+    }
+    // Also refit on slide change (rail visibility may shift layout)
+    document.querySelector('deck-stage')?.addEventListener('slidechange', () => {
+      requestAnimationFrame(fitAll);
+      setTimeout(fitAll, 100);
+    });
+  })();
+</script>
+
+<!-- ============================= TWEAKS PANEL ============================= -->
+<style>
+  #tweaks-panel {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 99999;
+    width: 320px;
+    background: #1a2b4a;
+    color: #f4eee2;
+    border-radius: 14px;
+    padding: 20px 22px 22px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.35), 0 4px 16px rgba(0,0,0,0.2);
+    display: none;
+    user-select: none;
+  }
+  #tweaks-panel.active { display: block; }
+  #tweaks-panel .tp-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  #tweaks-panel .tp-title {
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #e5732d;
+    font-weight: 600;
+  }
+  #tweaks-panel .tp-close {
+    background: transparent;
+    border: 0;
+    color: #c9c2b1;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+  }
+  #tweaks-panel .tp-close:hover { color: #f4eee2; }
+  #tweaks-panel .tp-row { display: flex; flex-direction: column; gap: 10px; }
+  #tweaks-panel .tp-label {
+    font-size: 13px;
+    color: #c9c2b1;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+  }
+  #tweaks-panel .tp-seg {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: rgba(255,255,255,0.07);
+    border-radius: 10px;
+    padding: 4px;
+    gap: 4px;
+  }
+  #tweaks-panel .tp-seg button {
+    background: transparent;
+    border: 0;
+    color: #c9c2b1;
+    padding: 9px 10px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    font-family: inherit;
+  }
+  #tweaks-panel .tp-seg button.on {
+    background: #e5732d;
+    color: #fff;
+  }
+  #tweaks-panel .tp-seg button:not(.on):hover { color: #f4eee2; }
+  #tweaks-panel .tp-preview {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 8px;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #f4eee2;
+  }
+</style>
+
+<div id="tweaks-panel" role="dialog" aria-label="Tweaks">
+  <div class="tp-head">
+    <div class="tp-title">Tweaks</div>
+    <button class="tp-close" id="tp-close" aria-label="Close">&times;</button>
+  </div>
+  <div class="tp-row">
+    <div class="tp-label">Monospace font family — applies to all eyebrows, chrome, KPI labels, journey pills, etc.</div>
+    <div class="tp-seg" id="tp-mono-seg">
+      <button data-value="geist" class="on">Geist Mono</button>
+      <button data-value="helvetica">Helvetica</button>
+    </div>
+    <div class="tp-preview" id="tp-preview">KPI 01 &middot; Today &rarr; Goal</div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "monoFont": "helvetica"
+  }/*EDITMODE-END*/;
+
+  const FONT_MAP = {
+    geist: '"Geist Mono", ui-monospace, "SF Mono", Menlo, monospace',
+    helvetica: '"Helvetica Neue", Helvetica, Arial, sans-serif'
+  };
+
+  const panel = document.getElementById('tweaks-panel');
+  const closeBtn = document.getElementById('tp-close');
+  const monoSeg = document.getElementById('tp-mono-seg');
+  const preview = document.getElementById('tp-preview');
+
+  let state = Object.assign({}, TWEAK_DEFAULTS);
+
+  function applyState() {
+    const stack = FONT_MAP[state.monoFont] || FONT_MAP.geist;
+    document.documentElement.style.setProperty('--mono', stack);
+    // Reflect in segmented control
+    monoSeg.querySelectorAll('button').forEach(b => {
+      b.classList.toggle('on', b.dataset.value === state.monoFont);
+    });
+    preview.style.fontFamily = stack;
+  }
+
+  function setKey(key, value) {
+    state[key] = value;
+    applyState();
+    try {
+      window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [key]: value } }, '*');
+    } catch (e) {}
+  }
+
+  monoSeg.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-value]');
+    if (!btn) return;
+    setKey('monoFont', btn.dataset.value);
+  });
+
+  closeBtn.addEventListener('click', () => {
+    panel.classList.remove('active');
+    try { window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*'); } catch (e) {}
+  });
+
+  // Register listener FIRST, then announce availability
+  window.addEventListener('message', (event) => {
+    const msg = event.data;
+    if (!msg || typeof msg !== 'object') return;
+    if (msg.type === '__activate_edit_mode') {
+      panel.classList.add('active');
+    } else if (msg.type === '__deactivate_edit_mode') {
+      panel.classList.remove('active');
+    }
+  });
+
+  // Apply initial state
+  applyState();
+
+  // Announce availability
+  try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch (e) {}
+})();
+</script>
+
+</body>
+</html>
