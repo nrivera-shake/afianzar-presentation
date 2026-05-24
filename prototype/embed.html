@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Afianzar — Phone Embed</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="proto-styles.css"/>
+<style>
+  html, body {
+    margin: 0; padding: 0; background: transparent;
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+  }
+  body {
+    width: 390px; height: 800px;
+    display: flex; align-items: flex-start; justify-content: flex-start;
+    transform-origin: top left;
+  }
+  #root { display: contents; }
+  /* The phone fills the viewport, maintaining aspect 390/800 */
+  .embed-phone-wrap {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .embed-phone {
+    width: 390px; height: 800px;
+    background: #fff;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    /* No bezel — slot already provides framing in deck */
+    border-radius: 0;
+  }
+</style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
+
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel" src="screens.jsx"></script>
+
+<script type="text/babel">
+  // No-op stubs for tweaks (screens.jsx doesn't use them, but app.jsx does)
+  if (!window.useTweaks) window.useTweaks = (defaults) => [defaults, () => {}];
+
+  const SCREEN_MAP = {
+    home: 'Dashboard',
+    profile: 'ProfileSelection',
+    details: 'TenantPropertyDetails',
+    confirm: 'ReviewConfirm',
+    detail: 'CaseDetail',
+    checklist: 'DocChecklist',
+    result: 'ResultApproved',
+    correction: 'ResultCorrection',
+  };
+  const NAV_MAP = {
+    home: 'home',
+    profile: 'new',
+    details: 'new',
+    confirm: 'new',
+    detail: 'home',
+    checklist: 'home',
+    result: 'home',
+    correction: 'home',
+  };
+
+  function StatusBarStub() {
+    return (
+      <div className="statusbar">
+        <span>9:41</span>
+        <div className="icons">
+          <svg width="18" height="11" viewBox="0 0 18 11" fill="currentColor"><circle cx="2.5" cy="8.5" r="2"/><circle cx="8.5" cy="6" r="2"/><circle cx="15" cy="3" r="2"/></svg>
+          <svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" strokeWidth="1.4"><path d="M9 1.5C5.5 1.5 2.5 3 1 5l1.2 1.2c2-1.6 4.3-2.4 6.8-2.4s4.8.8 6.8 2.4L17 5C15.5 3 12.5 1.5 9 1.5z"/><circle cx="9" cy="9" r="1.2" fill="currentColor"/></svg>
+          <svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x="0.5" y="0.5" width="22" height="11" rx="3" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="23.5" y="3.5" width="1.5" height="5" rx="0.6" fill="currentColor" opacity="0.4"/></svg>
+        </div>
+      </div>
+    );
+  }
+
+  function BottomNavStub({ active }) {
+    const items = [
+      { id: 'home', label: 'Dashboard', Ico: window.IcHome },
+      { id: 'new', label: 'New', Ico: window.IcPlus },
+      { id: 'notif', label: 'Notifications', Ico: window.IcBell, badge: 3 },
+      { id: 'profile', label: 'Profile', Ico: window.IcUser },
+    ];
+    return (
+      <div className="bottomnav">
+        {items.map(({ id, label, Ico, badge }) => (
+          <button key={id} className={'nav-item ' + (active === id ? 'active' : '')}>
+            <div style={{ position: 'relative' }}>
+              <Ico size={22} />
+              {badge ? <span style={{ position:'absolute', top:-4, right:-8, background:'#DC2626', color:'white', fontSize:9, fontWeight:700, minWidth:14, height:14, borderRadius:7, display:'inline-flex', alignItems:'center', justifyContent:'center', padding:'0 4px', border:'1.5px solid white' }}>{badge}</span> : null}
+            </div>
+            <span>{label}</span>
+          </button>
+        ))}
+      </div>
+    );
+  }
+
+  function EmbedPhone() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('s') || 'home';
+    const compName = SCREEN_MAP[id] || 'Dashboard';
+    const nav = NAV_MAP[id] || 'home';
+    const Comp = window[compName];
+    if (!Comp) return <div style={{padding: 40}}>Screen not found: {id}</div>;
+    const go = () => {};
+    return (
+      <div className="embed-phone-wrap">
+        <div className="embed-phone">
+          <StatusBarStub/>
+          <div className="screen">
+            <Comp go={go} correction={id==='correction'} setCorrection={()=>{}}/>
+          </div>
+          <BottomNavStub active={nav}/>
+        </div>
+      </div>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<EmbedPhone/>);
+
+  // Capture mode: ?scale=N applies a uniform scale to fit viewport for screenshotting.
+  (function () {
+    const params = new URLSearchParams(window.location.search);
+    const scale = parseFloat(params.get('scale'));
+    if (!isNaN(scale) && scale > 0) {
+      document.body.style.transform = `scale(${scale})`;
+      document.documentElement.style.width = (390 * scale) + 'px';
+      document.documentElement.style.height = (800 * scale) + 'px';
+      document.documentElement.style.overflow = 'hidden';
+    }
+  })();
+</script>
+
+</body>
+</html>
